@@ -1,0 +1,9 @@
+Copyright 2024, 2026 by Qingyuan Zhao (qyzhao@statslab.cam.ac.uk).
+
+These macros may be freely used, transmitted, reproduced, or modified
+provided that the copyright notice and this permission is retained.
+
+The same permission applies to this repository's accompanying documentation,
+tests and workflow scripts. The AMS glyphs are supplied by the user's TeX
+installation; this repository does not redistribute or modify the AMS fonts.
+AMSFonts has its own licence (SIL Open Font License 1.1).

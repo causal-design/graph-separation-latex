@@ -1,0 +1,65 @@
+\documentclass{article}
+\usepackage[a4paper,margin=22mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{graph-separation}
+\usepackage{url}
+\begin{document}
+\title{Graph separation package}
+\author{Qingyuan Zhao\thanks{Statistical Laboratory, University of Cambridge,
+qyzhao@statslab.cam.ac.uk.}}
+\maketitle
+\noindent Version 3.0.0-rc.1 (review candidate, 28 October 2026).
+
+Download \texttt{graph-separation.sty} and put it beside your \texttt{.tex} file.
+Add this line to the preamble:
+\begin{verbatim}
+\usepackage{graph-separation}
+\end{verbatim}
+The source and reproducible build workflow are maintained at:\\
+\url{https://github.com/qingyuanzhao/graph-separation}.
+
+The package requires \texttt{amsmath}, \texttt{amssymb}, \texttt{tikz},
+\texttt{adjustbox} and \texttt{centernot}, supplied by standard TeX distributions.
+
+The squiggly relations use the actual AMS font glyphs. One-ended and unheaded
+squiggles follow \verb|\rightsquigarrow|; two-ended squiggles follow
+\verb|\leftrightsquigarrow|. At 10\,pt these have respective TeX widths
+10\,pt and approximately 13.9\,pt. Script styles use the font's smaller optical
+designs. Half-arrowhead orientation and all existing command names are retained.
+Straight relations retain the published website/course design (v2.0).
+
+\begin{center}
+\begin{tabular}{llll}
+$\nostraigno$ & \verb|\nostraigno| & $\nosquigno$ & \verb|\nosquigno|\\[5pt]
+$\nostraigfull$ & \verb|\nostraigfull| & $\nosquigfull$ & \verb|\nosquigfull|\\[5pt]
+$\fullstraigno$ & \verb|\fullstraigno| & $\fullsquigno$ & \verb|\fullsquigno|\\[5pt]
+$\halfstraighalf$ & \verb|\halfstraighalf| & $\halfsquighalf$ & \verb|\halfsquighalf|\\[5pt]
+$\halfstraigfull$ & \verb|\halfstraigfull| & $\halfsquigfull$ & \verb|\halfsquigfull|\\[5pt]
+$\fullstraighalf$ & \verb|\fullstraighalf| & $\fullsquighalf$ & \verb|\fullsquighalf|\\[5pt]
+$\fullstraigfull$ & \verb|\fullstraigfull| & $\fullsquigfull$ & \verb|\fullsquigfull|
+\end{tabular}
+\end{center}
+\noindent The higher-level commands describe edges, walks, arcs and connections.
+An asterisk combines pieces of a walk; the labels \(\mathrm{d}\) and
+\(\mathrm{t}\) distinguish d-connection and treks. In particular,
+\verb|\mconnarc| has no superscript \(\mathrm{m}\).
+\begin{center}
+\begin{tabular}{llll}
+$\udedge$ & \verb|\udedge| & $\noudedge$ & \verb|\noudedge|\\[5pt]
+$\rdedge$ & \verb|\rdedge| & $\nordedge$ & \verb|\nordedge|\\[5pt]
+$\ldedge$ & \verb|\ldedge| & $\noldedge$ & \verb|\noldedge|\\[5pt]
+$\bdedge$ & \verb|\bdedge| & $\nobdedge$ & \verb|\nobdedge|\\[5pt]
+$\rdpath$ & \verb|\rdpath| & $\nordpath$ & \verb|\nordpath|\\[5pt]
+$\ldpath$ & \verb|\ldpath| & $\noldpath$ & \verb|\noldpath|\\[5pt]
+$\trek$ & \verb|\tconnarc| or \verb|\trek| & $\notrek$ & \verb|\notconnarc| or \verb|\notrek|\\[5pt]
+$\mconnarc$ & \verb|\mconnarc| & $\nomconnarc$ & \verb|\nomconnarc|\\[5pt]
+$\dconnarc$ & \verb|\dconnarc| & $\nodconnarc$ & \verb|\nodconnarc|\\[5pt]
+$\confarc$ & \verb|\confarc| & $\noconfarc$ & \verb|\noconfarc|\\[5pt]
+$\samedist$ & \verb|\samedist| & $\confpath$ & \verb|\confpath|\\[5pt]
+$\colliderconn$ & \verb|\colliderconn| & $\markovblanket$ & \verb|\markovblanket|\\[5pt]
+$\uconn$ & \verb|\uconn| & $\tconn$ & \verb|\tconn|\\[5pt]
+$\mconn$ & \verb|\mconn| & $\dconn$ & \verb|\dconn|\\[5pt]
+$\muconn$ & \verb|\muconn| & $\deltaconn$ & \verb|\deltaconn|
+\end{tabular}
+\end{center}
+\end{document}

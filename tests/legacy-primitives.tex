@@ -1,0 +1,19 @@
+% Archival v2.1 drawing parameters, factored only to keep the test fixture short.
+% Copyright 2024 by Qingyuan Zhao (qyzhao@statslab.cam.ac.uk).
+% These macros may be freely used, transmitted, reproduced, or modified
+% provided that the copyright notice and this permission is retained.
+\usetikzlibrary{decorations.pathmorphing}
+\newcommand{\oldprimitive}[1]{\mathrel{\adjustbox{valign=c}{%
+  \begin{tikzpicture}
+    \draw[decorate,line width=0.4pt,
+      decoration={zigzag,amplitude=0.8pt,segment length=1.3mm,
+        pre=lineto,pre length=0.6mm,post=lineto,post length=0.5mm},#1]
+      (0,0) -- (0.515,0);
+  \end{tikzpicture}}}}
+\newcommand{\oldbare}{\oldprimitive{-}}
+\newcommand{\oldright}{\oldprimitive{-{Classical TikZ Rightarrow[length=1mm]}}}
+\newcommand{\oldleft}{\oldprimitive{{Classical TikZ Rightarrow[length=1mm]}-}}
+\newcommand{\oldhalfhalf}{\oldprimitive{{Classical TikZ Rightarrow[right,length=1mm]}-{Classical TikZ Rightarrow[right,length=1mm]}}}
+\newcommand{\oldhalffull}{\oldprimitive{{Classical TikZ Rightarrow[right,length=1mm]}-{Classical TikZ Rightarrow[length=1mm]}}}
+\newcommand{\oldfullhalf}{\oldprimitive{{Classical TikZ Rightarrow[length=1mm]}-{Classical TikZ Rightarrow[right,length=1mm]}}}
+\newcommand{\oldfullfull}{\oldprimitive{{Classical TikZ Rightarrow[length=1mm]}-{Classical TikZ Rightarrow[length=1mm]}}}

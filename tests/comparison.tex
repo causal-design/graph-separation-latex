@@ -1,0 +1,80 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=22mm]{geometry}
+\usepackage{graph-separation}
+\usepackage{array}
+\input{tests/legacy-primitives.tex}
+\newcommand{\row}[2]{\texttt{\textbackslash#1} & $#2$ & $A\csname#1\endcsname B$ & $X_{A\csname#1\endcsname B}$ & $X_{Y_{A\csname#1\endcsname B}}$\\[7pt]}
+\begin{document}
+\section*{Graph separation: AMS comparison}
+Candidate v3.0.0-rc.1. Full arrowheads use the AMS glyphs themselves;
+half arrowheads are clipped from those glyphs. No mathematical command names
+or meanings have changed. One-ended symbols follow the shorter AMS arrow;
+two-ended symbols follow the longer AMS double arrow.
+
+\subsection*{At reading size}
+\begin{tabular}{@{}lllll@{}}
+Command & AMS reference & Inline & Script & Script-script\\[7pt]
+\row{nosquigno}{\rightsquigarrow}
+\row{nosquigfull}{\rightsquigarrow}
+\row{fullsquigno}{\rightsquigarrow}
+\row{halfsquighalf}{\leftrightsquigarrow}
+\row{halfsquigfull}{\leftrightsquigarrow}
+\row{fullsquighalf}{\leftrightsquigarrow}
+\row{fullsquigfull}{\leftrightsquigarrow}
+\end{tabular}
+
+\subsection*{Enlarged: AMS, right, left, half/half, half/full, full/half, full/full, bare}
+\noindent\scalebox{3}{$\rightsquigarrow\quad\nosquigfull\quad\fullsquigno\quad\nosquigno$}
+\par\medskip
+\noindent\scalebox{3}{$\leftrightsquigarrow\quad\halfsquighalf\quad\halfsquigfull\quad\fullsquighalf\quad\fullsquigfull$}
+
+\subsection*{Labels, negations and compound relations}
+\[
+ V_j\rdpath V_k\qquad V_j\ldpath V_k\qquad
+ V_j\mconnarc V_k\qquad V_j\dconnarc V_k\qquad V_j\trek V_k
+\]
+\[
+ A\nordpath B\quad A\noldpath B\quad A\nomconnarc B\quad
+ A\nodconnarc B\quad A\notrek B\quad A\noconfarc B
+\]
+\[
+ A\mconn B\quad A\dconn B\quad A\tconn B\quad
+ A\confpath B\quad A\deltaconn B\quad A\muconn B
+\]
+\[
+ X_{A\mconnarc B}\quad X_{A\dconnarc B}\quad X_{A\trek B}\quad
+ X_{Y_{A\mconnarc B}}\quad X_{Y_{A\dconnarc B}}\quad X_{Y_{A\trek B}}
+\]
+\subsection*{Straight relations (unchanged from the website/course version)}
+\[
+ A\udedge B\quad A\rdedge B\quad A\ldedge B\quad A\bdedge B\quad
+ A\samedist B\quad A\colliderconn B
+\]
+\[
+ A\markovblanket B\quad A\uconn B
+\]
+\newpage
+\section*{Before and after}
+The old column reproduces the v2.1 primitive drawing parameters (0.4\,pt
+stroke, 0.515\,cm path). The earlier website/course copy used a heavier
+0.5\,pt stroke with the same geometry. These are archival comparisons,
+not alternative implementations for use in documents.
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+Endpoints & Old v2.1 & Proposed & AMS reference\\[10pt]
+None & $A\oldbare B$ & $A\nosquigno B$ & $A\rightsquigarrow B$\\[12pt]
+Right & $A\oldright B$ & $A\nosquigfull B$ & $A\rightsquigarrow B$\\[12pt]
+Left & $A\oldleft B$ & $A\fullsquigno B$ & $A\rightsquigarrow B$\\[12pt]
+Half/half & $A\oldhalfhalf B$ & $A\halfsquighalf B$ & $A\leftrightsquigarrow B$\\[12pt]
+Half/full & $A\oldhalffull B$ & $A\halfsquigfull B$ & $A\leftrightsquigarrow B$\\[12pt]
+Full/half & $A\oldfullhalf B$ & $A\fullsquighalf B$ & $A\leftrightsquigarrow B$\\[12pt]
+Full/full & $A\oldfullfull B$ & $A\fullsquigfull B$ & $A\leftrightsquigarrow B$\\[12pt]
+\end{tabular}
+\end{center}
+\subsection*{Enlarged: old above, proposed below}
+\noindent\scalebox{3}{$\oldright\quad\oldhalfhalf\quad\oldfullfull$}
+\par\bigskip
+\noindent\scalebox{3}{$\nosquigfull\quad\halfsquighalf\quad\fullsquigfull$}
+\end{document}

@@ -1,0 +1,150 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% graph-separation.sty version 3.0.0-rc.1
+% Copyright 2024, 2026 by Qingyuan Zhao (qyzhao@statslab.cam.ac.uk)
+% These macros may be freely used, transmitted, reproduced, or modified
+% provided that the copyright notice and this permission is retained.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{graph-separation}[2026/10/28 v3.0.0-rc.1 Graph relations with AMS squiggles]
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta}
+\RequirePackage{adjustbox}
+\RequirePackage{centernot}
+
+% Use the font's squiggles, not a separately drawn approximation. In particular,
+% the optical designs in msam5 and msam7 are NOT scaled versions of msam10.
+% A one-ended/no-headed relation uses rightsquigarrow's width; two-ended
+% relations use leftrightsquigarrow's width. All helpers are local to mathpalette.
+\newsavebox{\gs@box}
+\newsavebox{\gs@stem}
+\newdimen\gs@width
+\newdimen\gs@axis
+\newcommand{\gs@axisfor}[1]{%
+  \ifx#1\scriptstyle
+    \gs@axis=\fontdimen22\scriptfont2
+  \else\ifx#1\scriptscriptstyle
+    \gs@axis=\fontdimen22\scriptscriptfont2
+  \else
+    \gs@axis=\fontdimen22\textfont2
+  \fi\fi}
+
+% Clip only the arrowhead regions: retain the upper half at the left endpoint
+% and the lower half at the right endpoint, as in v2's TikZ [right] half-tips.
+% Body glyphs, font stroke weight and mathematical axis remain native AMS.
+% The clipping region deliberately extends beyond the TFM box: AMS arrowhead
+% ink protrudes above its declared height. The output retains the native box.
+\newcommand{\gs@half}[2]{%
+  \begingroup
+  \sbox{\gs@box}{$\m@th#1\leftrightsquigarrow$}%
+  \gs@width=\wd\gs@box
+  \gs@axisfor{#1}%
+  \begin{tikzpicture}[baseline=0pt]
+    \begin{scope}
+      \ifcase#2\relax
+        % half at both ends
+        \clip (0,\gs@axis) -- (.20\gs@width,\gs@axis)
+          -- (.20\gs@width,-\gs@width) -- (\gs@width,-\gs@width)
+          -- (\gs@width,\gs@axis) -- (.80\gs@width,\gs@axis)
+          -- (.80\gs@width,\gs@width) -- (0,\gs@width) -- cycle;
+      \or
+        % half at left, full at right
+        \clip (0,\gs@axis) -- (.20\gs@width,\gs@axis)
+          -- (.20\gs@width,-\gs@width) -- (\gs@width,-\gs@width)
+          -- (\gs@width,\gs@width) -- (0,\gs@width) -- cycle;
+      \or
+        % full at left, half at right
+        \clip (0,-\gs@width) -- (\gs@width,-\gs@width)
+          -- (\gs@width,\gs@axis) -- (.80\gs@width,\gs@axis)
+          -- (.80\gs@width,\gs@width) -- (0,\gs@width) -- cycle;
+      \fi
+      \node[anchor=base west,inner sep=0pt,outer sep=0pt,overlay]
+        at (0,0) {\usebox{\gs@box}};
+    \end{scope}
+    \pgfresetboundingbox
+    \path[use as bounding box] (0,-\dp\gs@box)
+      rectangle (\gs@width,\ht\gs@box);
+  \end{tikzpicture}%
+  \endgroup}
+
+\newcommand{\gs@left}[2]{%
+  \reflectbox{$\m@th#1\rightsquigarrow$}}
+
+% Remove the right head without redrawing the wave or guessing stroke weight.
+% The 68--72% strip lies entirely in the native horizontal stem in msam5/7/10.
+% Stretch it horizontally ONLY, to extend the stem to the original endpoint.
+\newcommand{\gs@bare}[2]{%
+  \begingroup
+  \sbox{\gs@box}{$\m@th#1\rightsquigarrow$}%
+  \gs@width=\wd\gs@box
+  \sbox{\gs@stem}{\clipbox{.68\gs@width\space 0pt .28\gs@width\space 0pt}{\usebox{\gs@box}}}%
+  \begin{tikzpicture}[baseline=0pt]
+    \begin{scope}
+      \clip (0,-\gs@width) rectangle (.74\gs@width,\gs@width);
+      \node[anchor=base west,inner sep=0pt,outer sep=0pt,overlay]
+        at (0,0) {\usebox{\gs@box}};
+    \end{scope}
+    \node[anchor=base west,inner sep=0pt,outer sep=0pt,overlay]
+      at (.70\gs@width,0) {\scalebox{6}[1]{\usebox{\gs@stem}}};
+    \pgfresetboundingbox
+    \path[use as bounding box] (0,-\dp\gs@box)
+      rectangle (\gs@width,\ht\gs@box);
+  \end{tikzpicture}%
+  \endgroup}
+
+\newcommand\nosquigno{\mathrel{\mathpalette\gs@bare\relax}}
+\newcommand\nosquigfull{\mathrel{\rightsquigarrow}}
+\newcommand\fullsquigno{\mathrel{\mathpalette\gs@left\relax}}
+\newcommand\halfsquighalf{\mathrel{\mathpalette\gs@half{0}}}
+\newcommand\halfsquigfull{\mathrel{\mathpalette\gs@half{1}}}
+\newcommand\fullsquighalf{\mathrel{\mathpalette\gs@half{2}}}
+\newcommand\fullsquigfull{\mathrel{\leftrightsquigarrow}}
+
+% Straight primitives retain the published v2.0/course drawing and dimensions.
+% release deliberately changes only squiggles and their derived relations.
+\newcommand{\gs@straight}[1]{%
+  \mathrel{\adjustbox{valign=c}{\begin{tikzpicture}
+    \draw[line width=0.5pt,#1] (0,0) -- (0.515,0);
+  \end{tikzpicture}}}}
+\newcommand\nostraigno{\gs@straight{-}}
+\newcommand\nostraigfull{\gs@straight{-{Classical TikZ Rightarrow[length=1mm]}}}
+\newcommand\fullstraigno{\gs@straight{{Classical TikZ Rightarrow[length=1mm]}-}}
+\newcommand\halfstraighalf{\gs@straight{{Classical TikZ Rightarrow[right,length=1mm]}-{Classical TikZ Rightarrow[right,length=1mm]}}}
+\newcommand\halfstraigfull{\gs@straight{{Classical TikZ Rightarrow[right,length=1mm]}-{Classical TikZ Rightarrow[length=1mm]}}}
+\newcommand\fullstraighalf{\gs@straight{{Classical TikZ Rightarrow[length=1mm]}-{Classical TikZ Rightarrow[right,length=1mm]}}}
+\newcommand\fullstraigfull{\gs@straight{{Classical TikZ Rightarrow[length=1mm]}-{Classical TikZ Rightarrow[length=1mm]}}}
+
+\newcommand{\rdedge}{\mathrel{\nostraigfull}}
+\newcommand{\nordedge}{\mathrel{\centernot{\nostraigfull}}}
+\newcommand{\ldedge}{\mathrel{\fullstraigno}}
+\newcommand{\noldedge}{\mathrel{\centernot{\fullstraigno}}}
+\newcommand{\bdedge}{\mathrel{\fullstraigfull}}
+\newcommand{\nobdedge}{\mathrel{\centernot{\fullstraigfull}}}
+\newcommand{\rdpath}{\mathrel{\nosquigfull}}
+\newcommand{\nordpath}{\mathrel{\centernot{\nosquigfull}}}
+\newcommand{\ldpath}{\mathrel{\fullsquigno}}
+\newcommand{\noldpath}{\mathrel{\centernot{\fullsquigno}}}
+\newcommand{\dconnarc}{\mathrel{\overset{\textnormal{d}}{\halfsquighalf}}}
+\newcommand{\nodconnarc}{\mathrel{\centernot \dconnarc}}
+\newcommand{\mconnarc}{\mathrel{\halfsquighalf}}
+\newcommand{\nomconnarc}{\mathrel{\centernot \mconnarc}}
+\newcommand{\trek}{\mathrel{\overset{\textnormal{t}}{\fullsquigfull}}}
+\newcommand{\tconnarc}{\trek}
+\newcommand{\notrek}{\mathrel{\centernot \trek}}
+\newcommand{\notconnarc}{\notrek}
+\newcommand{\confarc}{\mathrel{\fullsquigfull}}
+\newcommand{\noconfarc}{\mathrel{\centernot{\fullsquigfull}}}
+\newcommand{\samedist}{\mathrel{\fullstraigfull \ast \fullstraigfull}}
+\newcommand{\colliderconn}{\mathrel{\halfstraigfull \ast \fullstraighalf}}
+\newcommand{\markovblanket}{\mathrel{\halfstraigfull \ast \fullstraigfull}}
+\newcommand{\tconn}{\mathrel{\overset{\textnormal{t}}{\fullsquigfull} \ast \overset{\textnormal{t}}{\fullsquigfull}}}
+\newcommand{\mconn}{\mathrel{\halfsquigfull \ast \fullsquighalf}}
+\newcommand{\dconn}{\mathrel{\overset{\textnormal{d}}{\halfsquigfull} \ast \overset{\textnormal{d}}{\fullsquighalf}}}
+\newcommand{\confpath}{\mathrel{\fullsquigfull \ast \fullsquigfull}}
+\newcommand{\udedge}{\mathrel{\nostraigno}}
+\newcommand{\noudedge}{\mathrel{\centernot{\nostraigno}}}
+\newcommand{\uconn}{\mathrel{\udedge\ast\udedge}}
+\newcommand{\deltaconn}{\mathrel{\overset{\textnormal{d}}{\halfsquigfull} \ast \overset{\textnormal{d}}{\fullsquigfull}}}
+\newcommand{\muconn}{\mathrel{\halfsquigfull \ast \fullsquigfull}}
+\endinput

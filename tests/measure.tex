@@ -1,0 +1,15 @@
+\documentclass{article}
+\usepackage{amssymb}
+\newsavebox{\glyph}
+\newcommand{\measure}[2]{%
+  \sbox{\glyph}{$#2$}%
+  \typeout{METRIC #1: \the\wd\glyph,\the\ht\glyph,\the\dp\glyph}%
+  \usebox{\glyph}}
+\begin{document}
+\measure{right-text}{\rightsquigarrow}
+\measure{both-text}{\leftrightsquigarrow}
+\measure{right-script}{\scriptstyle\rightsquigarrow}
+\measure{both-script}{\scriptstyle\leftrightsquigarrow}
+\measure{right-scriptscript}{\scriptscriptstyle\rightsquigarrow}
+\measure{both-scriptscript}{\scriptscriptstyle\leftrightsquigarrow}
+\end{document}
