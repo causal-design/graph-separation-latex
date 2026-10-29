@@ -21,9 +21,7 @@ VERSION = re.search(r"\\ProvidesPackage\{graph-separation\}\[[^\]]* v([^\s]+)",
 DEFAULT_MACROS = ["ldpath", "rdpath", "mconnarc", "dconnarc", "trek", "colliderconn", "mconn"]
 STYLES = {"display": (r"\displaystyle", 10), "text": (r"\textstyle", 10),
           "script": (r"\scriptstyle", 7), "scriptscript": (r"\scriptscriptstyle", 5)}
-NOTICE = ("Copyright 2024, 2026 by Qingyuan Zhao (qyzhao@statslab.cam.ac.uk).\n"
-          "These macros may be freely used, transmitted, reproduced, or modified\n"
-          "provided that the copyright notice and this permission is retained.")
+NOTICE = (ROOT / "LICENSE").read_text().strip()
 
 
 def digest(path):
@@ -216,7 +214,8 @@ def export_mathjax(output, names, mathjax_js=None):
     unknown = set(names) - set(public_macros())
     if unknown:
         raise ValueError(f"Unknown macros: {sorted(unknown)}")
-    identity = hashlib.sha256(STYLE.read_bytes() + Path(__file__).read_bytes()).hexdigest()
+    identity = hashlib.sha256(STYLE.read_bytes() + Path(__file__).read_bytes()
+                              + (ROOT / "LICENSE").read_bytes()).hexdigest()
     work = BUILD / "mathjax" / identity[:16]
     macros, metrics = {}, {}
     for name in names:

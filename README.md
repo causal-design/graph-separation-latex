@@ -5,7 +5,8 @@ Zhao. **Draft version 3.0.0-rc.2, 29 October 2026.** The lecturer selected desig
 B2 and its 180-degree rotational symmetry. The former direct-AMS draft is
 superseded. The source and local workflow are maintained at
 [causal-design/graph-separation-latex](https://github.com/causal-design/graph-separation-latex).
-The webpage and lecture-consumer pins have not been updated to this draft.
+Website downloads and lecture consumers use deliberately generated, hash-pinned
+copies of this source; they are not independently maintained implementations.
 
 ## Installation and usage
 
@@ -91,5 +92,11 @@ and the course's header builder to update its hash-pinned offline distribution;
 use `--website PATH` for generated website downloads. These are separate actions,
 not part of drafting. Preserve immutable published lecture releases.
 
-Webpage deployment and lecture-consumer updates remain separate actions. The original
-permissive licence is retained in `LICENSE` and the style file.
+Webpage deployment and lecture-consumer updates remain separate actions.
+
+## Licence
+
+The package, documentation and local workflow are released under the
+[MIT License](LICENSE), copyright Qingyuan Zhao. Retain the copyright and
+permission notice when redistributing. Historical comparison fixtures retain
+their original notices.
