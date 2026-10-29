@@ -1,11 +1,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% graph-separation.sty version 3.0.0-rc.1
+% graph-separation.sty version 3.0.0-rc.2
 % Copyright 2024, 2026 by Qingyuan Zhao (qyzhao@statslab.cam.ac.uk)
 % These macros may be freely used, transmitted, reproduced, or modified
 % provided that the copyright notice and this permission is retained.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{graph-separation}[2026/10/28 v3.0.0-rc.1 Graph relations with AMS squiggles]
+\ProvidesPackage{graph-separation}[2026/10/29 v3.0.0-rc.2 B2 graph relations]
 \RequirePackage{amsmath}
 \RequirePackage{amssymb}
 \RequirePackage{tikz}
@@ -13,96 +13,97 @@
 \RequirePackage{adjustbox}
 \RequirePackage{centernot}
 
-% Use the font's squiggles, not a separately drawn approximation. In particular,
-% the optical designs in msam5 and msam7 are NOT scaled versions of msam10.
-% A one-ended/no-headed relation uses rightsquigarrow's width; two-ended
-% relations use leftrightsquigarrow's width. All helpers are local to mathpalette.
-\newsavebox{\gs@box}
-\newsavebox{\gs@stem}
-\newdimen\gs@width
+% B2: 90% of the former 0.515cm path span, 0.45pt stroke at 10pt.
+% Every endpoint variant shares the same wave, advance and mathematical axis.
+% Dimensions scale with the active traditional math-symbol font's quad.
+\newdimen\gs@em
 \newdimen\gs@axis
-\newcommand{\gs@axisfor}[1]{%
+\newdimen\gs@length
+\newdimen\gs@weight
+\newdimen\gs@amplitude
+\newdimen\gs@guard
+\newdimen\gs@wave
+\newdimen\gs@head
+\newdimen\gs@height
+\newdimen\gs@xone
+\newdimen\gs@xtwo
+\newdimen\gs@xthree
+\newdimen\gs@xfour
+\newdimen\gs@end
+\newcommand{\gs@draw}[2]{%
+  \begingroup
   \ifx#1\scriptstyle
+    \gs@em=\fontdimen6\scriptfont2
     \gs@axis=\fontdimen22\scriptfont2
   \else\ifx#1\scriptscriptstyle
+    \gs@em=\fontdimen6\scriptscriptfont2
     \gs@axis=\fontdimen22\scriptscriptfont2
   \else
+    \gs@em=\fontdimen6\textfont2
     \gs@axis=\fontdimen22\textfont2
-  \fi\fi}
-
-% Clip only the arrowhead regions: retain the upper half at the left endpoint
-% and the lower half at the right endpoint, as in v2's TikZ [right] half-tips.
-% Body glyphs, font stroke weight and mathematical axis remain native AMS.
-% The clipping region deliberately extends beyond the TFM box: AMS arrowhead
-% ink protrudes above its declared height. The output retains the native box.
-\newcommand{\gs@half}[2]{%
-  \begingroup
-  \sbox{\gs@box}{$\m@th#1\leftrightsquigarrow$}%
-  \gs@width=\wd\gs@box
-  \gs@axisfor{#1}%
-  \begin{tikzpicture}[baseline=0pt]
-    \begin{scope}
-      \ifcase#2\relax
-        % half at both ends
-        \clip (0,\gs@axis) -- (.20\gs@width,\gs@axis)
-          -- (.20\gs@width,-\gs@width) -- (\gs@width,-\gs@width)
-          -- (\gs@width,\gs@axis) -- (.80\gs@width,\gs@axis)
-          -- (.80\gs@width,\gs@width) -- (0,\gs@width) -- cycle;
-      \or
-        % half at left, full at right
-        \clip (0,\gs@axis) -- (.20\gs@width,\gs@axis)
-          -- (.20\gs@width,-\gs@width) -- (\gs@width,-\gs@width)
-          -- (\gs@width,\gs@width) -- (0,\gs@width) -- cycle;
-      \or
-        % full at left, half at right
-        \clip (0,-\gs@width) -- (\gs@width,-\gs@width)
-          -- (\gs@width,\gs@axis) -- (.80\gs@width,\gs@axis)
-          -- (.80\gs@width,\gs@width) -- (0,\gs@width) -- cycle;
-      \fi
-      \node[anchor=base west,inner sep=0pt,outer sep=0pt,overlay]
-        at (0,0) {\usebox{\gs@box}};
-    \end{scope}
+  \fi\fi
+  \gs@length=1.318785236\gs@em
+  \gs@weight=.045\gs@em
+  \gs@amplitude=.08\gs@em
+  \gs@guard=.32\gs@em
+  \gs@head=.28452756\gs@em
+  \gs@height=.32\gs@em
+  \gs@wave=\gs@length \advance\gs@wave by-2\gs@guard
+  \gs@end=\gs@length \advance\gs@end by-\gs@guard
+  \gs@xone=.125\gs@wave \advance\gs@xone by\gs@guard
+  \gs@xtwo=.375\gs@wave \advance\gs@xtwo by\gs@guard
+  \gs@xthree=.625\gs@wave \advance\gs@xthree by\gs@guard
+  \gs@xfour=.875\gs@wave \advance\gs@xfour by\gs@guard
+  \begin{tikzpicture}[baseline=-\gs@axis,line width=\gs@weight,
+      line cap=butt,line join=miter]
+    % The body is centrally symmetric. Heads sit on separate straight stubs;
+    % adding heads cannot shorten, rephase or distort the two-cycle wave.
+    \draw (0,0) -- (\gs@guard,0)
+      -- (\gs@xone,\gs@amplitude) -- (\gs@xtwo,-\gs@amplitude)
+      -- (\gs@xthree,\gs@amplitude) -- (\gs@xfour,-\gs@amplitude)
+      -- (\gs@end,0) -- (\gs@length,0);
+    \ifcase#2\relax
+    \or
+      \draw[-{Classical TikZ Rightarrow[length=\the\gs@head]}]
+        (\gs@end,0) -- (\gs@length,0);
+    \or
+      \draw[{Classical TikZ Rightarrow[length=\the\gs@head]}-]
+        (0,0) -- (\gs@guard,0);
+    \or
+      \draw[{Classical TikZ Rightarrow[right,length=\the\gs@head]}-]
+        (0,0) -- (\gs@guard,0);
+      \draw[-{Classical TikZ Rightarrow[right,length=\the\gs@head]}]
+        (\gs@end,0) -- (\gs@length,0);
+    \or
+      \draw[{Classical TikZ Rightarrow[right,length=\the\gs@head]}-]
+        (0,0) -- (\gs@guard,0);
+      \draw[-{Classical TikZ Rightarrow[length=\the\gs@head]}]
+        (\gs@end,0) -- (\gs@length,0);
+    \or
+      \draw[{Classical TikZ Rightarrow[length=\the\gs@head]}-]
+        (0,0) -- (\gs@guard,0);
+      \draw[-{Classical TikZ Rightarrow[right,length=\the\gs@head]}]
+        (\gs@end,0) -- (\gs@length,0);
+    \or
+      \draw[{Classical TikZ Rightarrow[length=\the\gs@head]}-]
+        (0,0) -- (\gs@guard,0);
+      \draw[-{Classical TikZ Rightarrow[length=\the\gs@head]}]
+        (\gs@end,0) -- (\gs@length,0);
+    \fi
     \pgfresetboundingbox
-    \path[use as bounding box] (0,-\dp\gs@box)
-      rectangle (\gs@width,\ht\gs@box);
+    \path[use as bounding box] (0,-\gs@height)
+      rectangle (\gs@length,\gs@height);
   \end{tikzpicture}%
   \endgroup}
+\newcommand\nosquigno{\mathrel{\mathpalette\gs@draw{0}}}
+\newcommand\nosquigfull{\mathrel{\mathpalette\gs@draw{1}}}
+\newcommand\fullsquigno{\mathrel{\mathpalette\gs@draw{2}}}
+\newcommand\halfsquighalf{\mathrel{\mathpalette\gs@draw{3}}}
+\newcommand\halfsquigfull{\mathrel{\mathpalette\gs@draw{4}}}
+\newcommand\fullsquighalf{\mathrel{\mathpalette\gs@draw{5}}}
+\newcommand\fullsquigfull{\mathrel{\mathpalette\gs@draw{6}}}
 
-\newcommand{\gs@left}[2]{%
-  \reflectbox{$\m@th#1\rightsquigarrow$}}
-
-% Remove the right head without redrawing the wave or guessing stroke weight.
-% The 68--72% strip lies entirely in the native horizontal stem in msam5/7/10.
-% Stretch it horizontally ONLY, to extend the stem to the original endpoint.
-\newcommand{\gs@bare}[2]{%
-  \begingroup
-  \sbox{\gs@box}{$\m@th#1\rightsquigarrow$}%
-  \gs@width=\wd\gs@box
-  \sbox{\gs@stem}{\clipbox{.68\gs@width\space 0pt .28\gs@width\space 0pt}{\usebox{\gs@box}}}%
-  \begin{tikzpicture}[baseline=0pt]
-    \begin{scope}
-      \clip (0,-\gs@width) rectangle (.74\gs@width,\gs@width);
-      \node[anchor=base west,inner sep=0pt,outer sep=0pt,overlay]
-        at (0,0) {\usebox{\gs@box}};
-    \end{scope}
-    \node[anchor=base west,inner sep=0pt,outer sep=0pt,overlay]
-      at (.70\gs@width,0) {\scalebox{6}[1]{\usebox{\gs@stem}}};
-    \pgfresetboundingbox
-    \path[use as bounding box] (0,-\dp\gs@box)
-      rectangle (\gs@width,\ht\gs@box);
-  \end{tikzpicture}%
-  \endgroup}
-
-\newcommand\nosquigno{\mathrel{\mathpalette\gs@bare\relax}}
-\newcommand\nosquigfull{\mathrel{\rightsquigarrow}}
-\newcommand\fullsquigno{\mathrel{\mathpalette\gs@left\relax}}
-\newcommand\halfsquighalf{\mathrel{\mathpalette\gs@half{0}}}
-\newcommand\halfsquigfull{\mathrel{\mathpalette\gs@half{1}}}
-\newcommand\fullsquighalf{\mathrel{\mathpalette\gs@half{2}}}
-\newcommand\fullsquigfull{\mathrel{\leftrightsquigarrow}}
-
-% Straight primitives retain the published v2.0/course drawing and dimensions.
-% release deliberately changes only squiggles and their derived relations.
+% Straight relations retain the published v2.0 drawing and physical dimensions.
 \newcommand{\gs@straight}[1]{%
   \mathrel{\adjustbox{valign=c}{\begin{tikzpicture}
     \draw[line width=0.5pt,#1] (0,0) -- (0.515,0);
@@ -114,7 +115,6 @@
 \newcommand\halfstraigfull{\gs@straight{{Classical TikZ Rightarrow[right,length=1mm]}-{Classical TikZ Rightarrow[length=1mm]}}}
 \newcommand\fullstraighalf{\gs@straight{{Classical TikZ Rightarrow[length=1mm]}-{Classical TikZ Rightarrow[right,length=1mm]}}}
 \newcommand\fullstraigfull{\gs@straight{{Classical TikZ Rightarrow[length=1mm]}-{Classical TikZ Rightarrow[length=1mm]}}}
-
 \newcommand{\rdedge}{\mathrel{\nostraigfull}}
 \newcommand{\nordedge}{\mathrel{\centernot{\nostraigfull}}}
 \newcommand{\ldedge}{\mathrel{\fullstraigno}}

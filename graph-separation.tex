@@ -3,30 +3,92 @@
 \usepackage[T1]{fontenc}
 \usepackage{graph-separation}
 \usepackage{url}
+\usepackage{longtable}
+\usepackage[hidelinks]{hyperref}
 \begin{document}
 \title{Graph separation package}
 \author{Qingyuan Zhao\thanks{Statistical Laboratory, University of Cambridge,
 qyzhao@statslab.cam.ac.uk.}}
 \maketitle
-\noindent Version 3.0.0-rc.1 (review candidate, 28 October 2026).
+\noindent Version 3.0.0-rc.2: B2 design, draft of 29 October 2026.
+
+Source and local workflow:\\
+\url{https://github.com/causal-design/graph-separation-latex}.
+
+\section{Installation}
 
 Download \texttt{graph-separation.sty} and put it beside your \texttt{.tex} file.
 Add this line to the preamble:
 \begin{verbatim}
 \usepackage{graph-separation}
 \end{verbatim}
-The source and reproducible build workflow are maintained at:\\
-\url{https://github.com/qingyuanzhao/graph-separation}.
+For a shared installation, place the style file under
+\texttt{tex/latex/graph-separation/} in your personal TEXMF tree. Locate that tree
+with \verb|kpsewhich -var-value=TEXMFHOME|. Refresh the filename database with
+\texttt{mktexlsr} if your TeX installation requires it. Do not edit the system's
+package directories. A copy beside the document is the simplest option and also
+works in Overleaf: upload the style file into the project.
 
 The package requires \texttt{amsmath}, \texttt{amssymb}, \texttt{tikz},
 \texttt{adjustbox} and \texttt{centernot}, supplied by standard TeX distributions.
 
-The squiggly relations use the actual AMS font glyphs. One-ended and unheaded
-squiggles follow \verb|\rightsquigarrow|; two-ended squiggles follow
-\verb|\leftrightsquigarrow|. At 10\,pt these have respective TeX widths
-10\,pt and approximately 13.9\,pt. Script styles use the font's smaller optical
-designs. Half-arrowhead orientation and all existing command names are retained.
-Straight relations retain the published website/course design (v2.0).
+Compile with pdfLaTeX, LuaLaTeX or XeLaTeX; shell escape is not needed. This draft
+targets traditional LaTeX mathematics. It has not been qualified for
+\texttt{unicode-math}, arbitrary replacement math fonts or automatic bold symbols.
+The package draws notation inside equations; it is not a graph-layout package.
+
+\section{Quick start}
+Save the following as \texttt{example.tex}, beside the style file, and compile
+with \texttt{pdflatex example.tex}:
+\begin{verbatim}
+\documentclass{article}
+\usepackage{graph-separation}
+\begin{document}
+An inline relation: $V_j\rdpath V_k$.
+\[
+  V_j\mconnarc V_k \qquad V_j\dconnarc V_k
+  \qquad V_j\trek V_k \qquad V_j\notrek V_k.
+\]
+\end{document}
+\end{verbatim}
+The display above produces:
+\[
+  V_j\mconnarc V_k \qquad V_j\dconnarc V_k
+  \qquad V_j\trek V_k \qquad V_j\notrek V_k.
+\]
+Use all commands in math mode. They are mathematical relations and supply their
+own relation spacing: do not add manual spaces around a single symbol.
+
+\section{Design}
+The selected B2 design is drawn with TikZ, not assembled from AMS glyphs. At a
+10\,pt mathematical reference size, all seven squiggly primitives have the same
+13.18785\,pt advance and intended ink span, with a 0.45\,pt body stroke. This span
+is 90\% of the former 0.515\,cm path length. The wave has two complete triangular
+cycles of amplitude 0.8\,pt, with 3.2\,pt straight end clearances. The original
+full and half \texttt{Classical TikZ Rightarrow} heads retain a 1\,mm length;
+their pen follows TikZ's original head construction.
+
+The wave is identical for every endpoint combination. Arrowheads attach to
+separate straight stubs, so adding a head does not shorten or rephase the wave.
+All dimensions scale proportionally with the active mathematical style, including
+subscripts and sub-subscripts. The centre line sits on the mathematical axis.
+
+\textbf{Symmetry means rotation, not reflection.} The wave, the unheaded symbol,
+the full/full symbol and the half/half symbol coincide with themselves under a
+180-degree rotation. Right and left variants rotate into each other, as do
+half/full and full/half. Half-heads point up at the left end and down at the right.
+Superscript labels remain upright: the rotational property describes the
+underlying relation glyph, not its \(\mathrm{d}\) or \(\mathrm{t}\) annotation.
+
+Straight primitives retain the published website/course v2.0 drawing, including
+its original length and 0.5\,pt stroke. They are intentionally not the same length
+as the new squiggles. Existing command names and aliases are retained, but
+changed squiggle dimensions can alter line breaks in older documents.
+
+\section{Primitive commands}
+Names describe the left endpoint, line kind and right endpoint:
+\texttt{no}, \texttt{half} and \texttt{full} name the endpoint marks;
+\texttt{straig} and \texttt{squig} distinguish straight and squiggly lines.
 
 \begin{center}
 \begin{tabular}{llll}
@@ -39,12 +101,13 @@ $\fullstraighalf$ & \verb|\fullstraighalf| & $\fullsquighalf$ & \verb|\fullsquig
 $\fullstraigfull$ & \verb|\fullstraigfull| & $\fullsquigfull$ & \verb|\fullsquigfull|
 \end{tabular}
 \end{center}
+\section{Edges, walks and connections}
 \noindent The higher-level commands describe edges, walks, arcs and connections.
 An asterisk combines pieces of a walk; the labels \(\mathrm{d}\) and
 \(\mathrm{t}\) distinguish d-connection and treks. In particular,
 \verb|\mconnarc| has no superscript \(\mathrm{m}\).
 \begin{center}
-\begin{tabular}{llll}
+\begin{longtable}{llll}
 $\udedge$ & \verb|\udedge| & $\noudedge$ & \verb|\noudedge|\\[5pt]
 $\rdedge$ & \verb|\rdedge| & $\nordedge$ & \verb|\nordedge|\\[5pt]
 $\ldedge$ & \verb|\ldedge| & $\noldedge$ & \verb|\noldedge|\\[5pt]
@@ -60,6 +123,63 @@ $\colliderconn$ & \verb|\colliderconn| & $\markovblanket$ & \verb|\markovblanket
 $\uconn$ & \verb|\uconn| & $\tconn$ & \verb|\tconn|\\[5pt]
 $\mconn$ & \verb|\mconn| & $\dconn$ & \verb|\dconn|\\[5pt]
 $\muconn$ & \verb|\muconn| & $\deltaconn$ & \verb|\deltaconn|
-\end{tabular}
+\end{longtable}
 \end{center}
+\section{Labels, negation and composition}
+Use \verb|\dconnarc| for the half-headed arc with a \(\mathrm{d}\) label,
+and \verb|\trek| (also \verb|\tconnarc|) for the full-headed symbol with a
+\(\mathrm{t}\) label. \verb|\mconnarc| has no \(\mathrm{m}\) superscript.
+Negated variants are explicit commands, for example \verb|\nordpath|,
+\verb|\nomconnarc|, \verb|\nodconnarc| and \verb|\notrek|.
+\[
+ A\nordpath B\quad A\nomconnarc B\quad A\nodconnarc B\quad A\notrek B.
+\]
+The composite commands retain the original asterisk-separated notation:
+\[
+ A\mconn B\qquad A\dconn B\qquad A\tconn B.
+\]
+For example, \verb|$A\mconn B$| renders the half/full piece, an asterisk,
+and the full/half piece. The command table documents the available notation;
+mathematical definitions and assumptions belong to the accompanying paper or
+course. The package itself does not test graph separation.
+
+\section{Smaller styles and compatibility}
+No special commands are needed inside subscripts:
+\begin{verbatim}
+$X_{A\mconnarc B}\qquad X_{Y_{A\trek B}}$
+\end{verbatim}
+\[
+ X_{A\mconnarc B}\qquad X_{Y_{A\trek B}}.
+\]
+The squiggles scale with the mathematical font's quad rather than using separate
+optical designs. Straight primitives keep their legacy fixed-size behaviour.
+Labels, negations and composite commands are built from the same primitives.
+Do not load another local copy or an old preamble defining these command names:
+that will cause duplicate-definition errors. Use \texttt{kpsewhich
+graph-separation.sty} to check which installed copy TeX finds; the compile log
+should identify version 3.0.0-rc.2.
+
+\section{HTML and reproducible builds}
+MathJax cannot execute TikZ directly. The accompanying local Python workflow
+renders the native relations through LaTeX and \texttt{dvisvgm}, then creates a
+self-contained MathJax header with SVG images and measured widths/baselines.
+It keeps the original macro names in editable equations and selects separate
+renders for mathematical styles. The package source is the authority; do not
+maintain a separately drawn HTML version.
+\begin{verbatim}
+python3 tools/workflow.py check
+python3 tools/workflow.py check-outlines
+python3 tools/workflow.py build
+python3 tools/workflow.py export-mathjax
+\end{verbatim}
+The workflow requires Python 3.9 or later; SVG export additionally needs
+\texttt{standalone} and \texttt{dvisvgm}. A shared consumer should pin the package
+and generator hashes, updating deliberately rather than silently changing an
+existing publication. The former AMS draft is superseded. Publishing this source
+package does not replace existing website downloads or immutable lecture releases.
+
+\section{Licence}
+Copyright 2024, 2026 by Qingyuan Zhao. These macros may be freely used,
+transmitted, reproduced, or modified provided that the copyright notice and
+permission are retained. See \texttt{LICENSE} and the notice in the style file.
 \end{document}

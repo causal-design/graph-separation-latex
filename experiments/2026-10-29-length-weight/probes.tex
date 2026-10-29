@@ -1,0 +1,104 @@
+% Experimental specimen primitives, not a package for consumers.
+% Copyright 2024, 2026 by Qingyuan Zhao (qyzhao@statslab.cam.ac.uk).
+% These macros may be freely used, transmitted, reproduced, or modified
+% provided that the copyright notice and this permission is retained.
+\makeatletter
+\newdimen\gsp@em
+\newdimen\gsp@axis
+\newdimen\gsp@length
+\newdimen\gsp@weight
+\newdimen\gsp@amplitude
+\newdimen\gsp@guard
+\newdimen\gsp@wave
+\newdimen\gsp@head
+\newdimen\gsp@height
+\newdimen\gsp@xone
+\newdimen\gsp@xtwo
+\newdimen\gsp@xthree
+\newdimen\gsp@xfour
+\newdimen\gsp@end
+\def\gspLength{1.4653169}
+\def\gspWeight{0.045}
+\newcommand{\gsp@draw}[2]{%
+  \begingroup
+  \ifx#1\scriptstyle
+    \gsp@em=\fontdimen6\scriptfont2
+    \gsp@axis=\fontdimen22\scriptfont2
+  \else\ifx#1\scriptscriptstyle
+    \gsp@em=\fontdimen6\scriptscriptfont2
+    \gsp@axis=\fontdimen22\scriptscriptfont2
+  \else
+    \gsp@em=\fontdimen6\textfont2
+    \gsp@axis=\fontdimen22\textfont2
+  \fi\fi
+  \gsp@length=\gspLength\gsp@em
+  \gsp@weight=\gspWeight\gsp@em
+  \gsp@amplitude=.08\gsp@em
+  \gsp@guard=.32\gsp@em
+  \gsp@head=.28452756\gsp@em
+  \gsp@height=.32\gsp@em
+  \gsp@wave=\gsp@length
+  \advance\gsp@wave by-2\gsp@guard
+  \gsp@end=\gsp@length
+  \advance\gsp@end by-\gsp@guard
+  \gsp@xone=.125\gsp@wave \advance\gsp@xone by\gsp@guard
+  \gsp@xtwo=.375\gsp@wave \advance\gsp@xtwo by\gsp@guard
+  \gsp@xthree=.625\gsp@wave \advance\gsp@xthree by\gsp@guard
+  \gsp@xfour=.875\gsp@wave \advance\gsp@xfour by\gsp@guard
+  \begin{tikzpicture}[baseline=-\gsp@axis,line width=\gsp@weight,
+      line cap=butt,line join=miter]
+    % Identical body for every endpoint combination: two complete triangular
+    % waves, constant amplitude and fixed head clearances. The heads are drawn
+    % on separate straight stubs, so TikZ cannot shorten/rephase the zigzag.
+    \draw (0,0) -- (\gsp@guard,0)
+      -- (\gsp@xone,\gsp@amplitude)
+      -- (\gsp@xtwo,-\gsp@amplitude)
+      -- (\gsp@xthree,\gsp@amplitude)
+      -- (\gsp@xfour,-\gsp@amplitude)
+      -- (\gsp@end,0) -- (\gsp@length,0);
+    \ifcase#2\relax
+    \or % right full
+      \draw[-{Classical TikZ Rightarrow[length=\the\gsp@head]}]
+        (\gsp@end,0) -- (\gsp@length,0);
+    \or % left full
+      \draw[{Classical TikZ Rightarrow[length=\the\gsp@head]}-]
+        (0,0) -- (\gsp@guard,0);
+    \or % half / half
+      \draw[{Classical TikZ Rightarrow[right,length=\the\gsp@head]}-]
+        (0,0) -- (\gsp@guard,0);
+      \draw[-{Classical TikZ Rightarrow[right,length=\the\gsp@head]}]
+        (\gsp@end,0) -- (\gsp@length,0);
+    \or % half / full
+      \draw[{Classical TikZ Rightarrow[right,length=\the\gsp@head]}-]
+        (0,0) -- (\gsp@guard,0);
+      \draw[-{Classical TikZ Rightarrow[length=\the\gsp@head]}]
+        (\gsp@end,0) -- (\gsp@length,0);
+    \or % full / half
+      \draw[{Classical TikZ Rightarrow[length=\the\gsp@head]}-]
+        (0,0) -- (\gsp@guard,0);
+      \draw[-{Classical TikZ Rightarrow[right,length=\the\gsp@head]}]
+        (\gsp@end,0) -- (\gsp@length,0);
+    \or % full / full
+      \draw[{Classical TikZ Rightarrow[length=\the\gsp@head]}-]
+        (0,0) -- (\gsp@guard,0);
+      \draw[-{Classical TikZ Rightarrow[length=\the\gsp@head]}]
+        (\gsp@end,0) -- (\gsp@length,0);
+    \fi
+    % A common TeX box is necessary but not sufficient: the build also measures
+    % independently rasterized ink extents, including the arrowhead strokes.
+    \pgfresetboundingbox
+    \path[use as bounding box] (0,-\gsp@height)
+      rectangle (\gsp@length,\gsp@height);
+  \end{tikzpicture}%
+  \endgroup}
+\newcommand{\gspSelect}[2]{%
+  \def\gspLength{#1}\def\gspWeight{#2}%
+  \renewcommand\nosquigno{\mathrel{\mathpalette\gsp@draw{0}}}%
+  \renewcommand\nosquigfull{\mathrel{\mathpalette\gsp@draw{1}}}%
+  \renewcommand\fullsquigno{\mathrel{\mathpalette\gsp@draw{2}}}%
+  \renewcommand\halfsquighalf{\mathrel{\mathpalette\gsp@draw{3}}}%
+  \renewcommand\halfsquigfull{\mathrel{\mathpalette\gsp@draw{4}}}%
+  \renewcommand\fullsquighalf{\mathrel{\mathpalette\gsp@draw{5}}}%
+  \renewcommand\fullsquigfull{\mathrel{\mathpalette\gsp@draw{6}}}%
+}
+\makeatother

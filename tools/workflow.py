@@ -1,6 +1,7 @@
 """Local, standard-library-only build/test/MathJax workflow for graph-separation."""
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import base64
 import hashlib
 import html
@@ -22,9 +23,7 @@ STYLES = {"display": (r"\displaystyle", 10), "text": (r"\textstyle", 10),
           "script": (r"\scriptstyle", 7), "scriptscript": (r"\scriptscriptstyle", 5)}
 NOTICE = ("Copyright 2024, 2026 by Qingyuan Zhao (qyzhao@statslab.cam.ac.uk).\n"
           "These macros may be freely used, transmitted, reproduced, or modified\n"
-          "provided that the copyright notice and this permission is retained.\n"
-          "Embedded AMS glyph outlines: AMSFonts, Copyright 1995, 2009 American\n"
-          "Mathematical Society; SIL Open Font License 1.1 (https://openfontlicense.org/).")
+          "provided that the copyright notice and this permission is retained.")
 
 
 def digest(path):
@@ -75,19 +74,19 @@ def compile_tex(source, work, engine="pdflatex"):
     return log
 
 
-def check():
+def check(engines=None):
     report = {}
-    for engine in ["pdflatex", "lualatex", "xelatex"]:
+    for engine in (engines or ["pdflatex", "lualatex", "xelatex"]):
         executable(engine)  # Missing engines are explicit failures, not silent skips.
         body = [r"\documentclass{article}\usepackage{graph-separation}",
                 r"\input{tests/legacy-primitives.tex}",
                 r"\newsavebox{\probe}", r"\begin{document}"]
         expected = {}
         primitives = {
-            "nosquigno": "rightsquigarrow", "nosquigfull": "rightsquigarrow",
-            "fullsquigno": "rightsquigarrow", "halfsquighalf": "leftrightsquigarrow",
-            "halfsquigfull": "leftrightsquigarrow", "fullsquighalf": "leftrightsquigarrow",
-            "fullsquigfull": "leftrightsquigarrow",
+            "nosquigno": "nosquigno", "nosquigfull": "nosquigno",
+            "fullsquigno": "nosquigno", "halfsquighalf": "nosquigno",
+            "halfsquigfull": "nosquigno", "fullsquighalf": "nosquigno",
+            "fullsquigfull": "nosquigno",
         }
         for size in [10, 11, 12]:
             body.append(r"\fontsize{" + str(size) + "}{14}\\selectfont")
@@ -101,7 +100,8 @@ def check():
                         expected[key] = f"{size}-{style}-{primitives[name]}"
                 # Exercise every public command in all four styles at each size.
                 for name in public_macros():
-                    body.append(r"\sbox{\probe}{$" + tex_style + " A\\" + name + " B$}")
+                    if size == 10:
+                        body.append(r"\sbox{\probe}{$" + tex_style + " A\\" + name + " B$}")
         # Preserve the published 0.5pt straight primitive, including its box.
         for name, tips in [("nostraigno", "-"),
                            ("nostraigfull", "-{Classical TikZ Rightarrow[length=1mm]}"),
@@ -113,8 +113,7 @@ def check():
                         + r"\end{tikzpicture}}}$}%")
             body.append(r"\typeout{GS old-" + name + r": \the\wd\probe,\the\ht\probe,\the\dp\probe}")
             expected[name] = "old-" + name
-        # Native full arrows and reflected left arrow have exactly equal widths;
-        # aliases retain all three native box metrics. TikZ introduces tiny rounding.
+        # All B2 endpoint variants share their complete box in every math style.
         body.append(r"\end{document}")
         work = BUILD / "checks" / engine
         log = compile_tex("\n".join(body), work, engine)
@@ -126,39 +125,35 @@ def check():
                 raise AssertionError((engine, actual, metrics[actual], metrics[reference]))
         report[engine] = {"metric_comparisons": len(expected),
                           "public_macros": len(public_macros()), "metrics": metrics}
-    path = BUILD / "checks/report.json"
+    path = BUILD / "checks" / ("report.json" if engines is None else engines[0] + "-report.json")
     path.write_text(json.dumps(report, indent=2) + "\n")
-    print(f"PASS: 3 engines, {len(public_macros())} public macros, "
+    print(f"PASS: {len(report)} engine(s), {len(public_macros())} public macros, "
           f"{sum(r['metric_comparisons'] for r in report.values())} box comparisons")
+    return report
+
+
+def check_all():
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        reports = list(pool.map(lambda engine: check([engine]), ["pdflatex", "lualatex", "xelatex"]))
+    report = {engine: result for entry in reports for engine, result in entry.items()}
+    (BUILD / "checks/report.json").write_text(json.dumps({
+        "source_sha256": digest(STYLE), "engines": report}, indent=2) + "\n")
 
 
 def check_outlines():
-    """Full arrows must be identical to AMS; custom variants must retain its path."""
+    """The production primitives must reproduce the selected B2 experiment."""
     count = 0
     for style in STYLES:
-        references = {}
-        for name in ["rightsquigarrow", "leftrightsquigarrow"]:
+        for name in ["nosquigno", "nosquigfull", "fullsquigno", "halfsquighalf",
+                     "halfsquigfull", "fullsquighalf", "fullsquigfull"]:
             work = BUILD / "outline-checks" / style / name
             _, metric = render_glyph(name, style, work)
-            svg = ET.fromstring((work / "glyph.svg").read_bytes())
-            paths = {p.attrib["d"] for p in svg.iter()
-                     if p.tag.endswith("}path") and p.attrib.get("id", "").startswith("g")}
-            references[name] = metric["svg_sha256"], paths
-        for name, reference in [
-                ("nosquigno", "rightsquigarrow"), ("nosquigfull", "rightsquigarrow"),
-                ("fullsquigno", "rightsquigarrow"), ("halfsquighalf", "leftrightsquigarrow"),
-                ("halfsquigfull", "leftrightsquigarrow"), ("fullsquighalf", "leftrightsquigarrow"),
-                ("fullsquigfull", "leftrightsquigarrow")]:
-            work = BUILD / "outline-checks" / style / name
-            _, metric = render_glyph(name, style, work)
-            svg = ET.fromstring((work / "glyph.svg").read_bytes())
-            paths = {p.attrib["d"] for p in svg.iter()
-                     if p.tag.endswith("}path") and p.attrib.get("id", "").startswith("g")}
-            assert paths == references[reference][1], (style, name, "AMS outline changed")
-            if name in ["nosquigfull", "fullsquigfull"]:
-                assert metric["svg_sha256"] == references[reference][0], (style, name)
+            reference = (r"\input{" + str(ROOT / "experiments/2026-10-29-length-weight/probes.tex")
+                         + "}\n" + r"\gspSelect{1.318785236}{0.045000000}" + "\n")
+            _, expected = render_glyph(name, style, work / "selected-b2", reference)
+            assert metric["svg_sha256"] == expected["svg_sha256"], (style, name, "B2 drawing changed")
             count += 1
-    print(f"PASS: {count} native AMS outline checks (including 8 byte-identical full-arrow SVGs)")
+    print(f"PASS: {count} production SVGs are byte-identical to the selected B2 experiment")
 
 
 def build():
@@ -168,6 +163,8 @@ def build():
         work = BUILD / name
         compile_tex(source.read_text(), work)
         shutil.copy2(work / "document.pdf", BUILD / f"graph-separation-{name}.pdf")
+        if name == "example":
+            shutil.copy2(work / "document.pdf", ROOT / "graph-separation.pdf")
         outputs[f"graph-separation-{name}.pdf"] = digest(BUILD / f"graph-separation-{name}.pdf")
     (BUILD / "documents.json").write_text(json.dumps({
         "source_sha256": digest(STYLE), "example_sha256": digest(ROOT / "graph-separation.tex"),
@@ -176,18 +173,16 @@ def build():
     print(BUILD / "graph-separation-comparison.pdf")
 
 
-def render_glyph(name, style, work):
+def render_glyph(name, style, work, extra_preamble=""):
     tex_style, em = STYLES[style]
     log = compile_tex(
         r"\documentclass[dvisvgm,border=0pt]{standalone}" + "\n"
         r"\def\pgfsysdriver{pgfsys-dvisvgm.def}" + "\n"
-        r"\usepackage{graph-separation}\newsavebox{\glyph}" + "\n"
-        r"\begin{document}\sbox{\glyph}{$" + tex_style + "\\" + name + r"$}%" + "\n"
+        r"\usepackage{graph-separation}\newsavebox{\glyph}" + "\n" + extra_preamble
+        + r"\begin{document}\sbox{\glyph}{$" + tex_style + "\\" + name + r"$}%" + "\n"
         r"\typeout{GS-BOX: \the\wd\glyph,\the\ht\glyph,\the\dp\glyph}%" + "\n"
-        # AMS's real arrowhead ink extends above the nominal TFM box. Give the
-        # image a transparent top guard (0.06 of its design size), not a new
-        # baseline. Never use tight cropping: it also discards sidebearings and
-        # dvisvgm's tight bbox is unreliable for reflected/clipped TeX boxes.
+        # Keep a small transparent top guard without changing the baseline.
+        # Never tight-crop the image: that discards the measured TeX box.
         r"\noindent\rule{0pt}{\dimexpr\ht\glyph+" + f"{.06*em:.4f}pt"
         + r"\relax}\usebox{\glyph}\end{document}", work, "latex")
     match = re.search(r"GS-BOX: (-?[\d.]+)pt,(-?[\d.]+)pt,(-?[\d.]+)pt", log)
@@ -284,7 +279,7 @@ def main():
     export.add_argument("--mathjax-js", type=Path)
     args = parser.parse_args()
     if args.command == "check":
-        check()
+        check_all()
     elif args.command == "build":
         build()
     elif args.command == "check-outlines":

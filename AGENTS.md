@@ -2,9 +2,14 @@
 
 The root `graph-separation.sty` is the only editable implementation. Preserve
 the existing public macro names, meanings and original permissive licence.
-Use actual AMS glyphs for squiggles; see `README.md` for endpoint derivations,
-optical sizes and SVG overhang handling. Historical comparisons in `tests/` are
-fixtures, not alternative packages for consumers.
+The direct-AMS candidate was rejected on 29 October: the lecturer now wants a
+consistent length across all seven endpoint variants and more visible original-
+style half arrowheads. B2 and its 180-degree rotational symmetry were selected.
+The root v3.0.0-rc.2 draft now implements that design. Keep the controlled
+`experiments/2026-10-29-length-weight/` specimens as regression references;
+do not refresh consumer pins or publish before the draft is reviewed. AMS is an optical reference, not a
+required glyph source. Historical comparisons in `tests/` are fixtures, not
+alternative packages for consumers.
 
 Before handover run:
 
@@ -20,7 +25,11 @@ and in print. Use `tools/sync-consumers.py` for hash-pinned course distributions
 and generated website downloads. Never hand-edit a consumer's vendor copy.
 Read the consumer's instructions and preserve unrelated work before updating it.
 
-The current v3 candidate is awaiting the lecturer's visual approval before public
-GitHub upload and website deployment. Local generation and synchronization do
+The lecturer authorized publishing this draft source and workflow as the public
+GitHub repository `causal-design/graph-separation-latex` and placing the local
+checkout at `/Users/agents/Workspace/research/graphical-models/graph-separation-latex`.
+The package name remains `graph-separation`. Website deployment and lecture-pin
+updates are separate from source publication. The direct-AMS candidate is not
+accepted. Local generation and synchronization do
 not publish. Do not change historical manuscript sources or immutable published
 lecture releases when changing the central package.

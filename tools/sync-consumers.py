@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("workflow", ROOT / "tools/workflow.py")
 workflow = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(workflow)
-REPOSITORY = "https://github.com/qingyuanzhao/graph-separation"
+REPOSITORY = "https://github.com/causal-design/graph-separation-latex"
 
 
 def sync_course(course):
