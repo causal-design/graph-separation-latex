@@ -20,7 +20,7 @@ class WorkflowTests(unittest.TestCase):
         halfstraighalf halfstraigfull fullstraighalf fullstraigfull rdedge nordedge
         ldedge noldedge bdedge nobdedge rdpath nordpath ldpath noldpath dconnarc
         nodconnarc mconnarc nomconnarc trek tconnarc notrek notconnarc confarc
-        noconfarc samedist colliderconn markovblanket tconn mconn dconn confpath
+        noconfarc samedist colliderconn markovbgd markovblanket tconn mconn dconn confpath
         udedge noudedge uconn deltaconn muconn""".split()
         self.assertEqual(set(expected), set(sync.workflow.public_macros()))
         self.assertEqual(len(expected), len(sync.workflow.public_macros()))

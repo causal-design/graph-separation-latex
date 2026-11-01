@@ -27,9 +27,13 @@ V_j\rdpath V_k \qquad V_j\mconnarc V_k
 The illustrated **[installation, design and usage guide](graph-separation.pdf)**
 is included in the repository and draft bundle; its editable source is
 `graph-separation.tex`. It includes
-all 46 public commands, negations, aliases, compound relations, small styles,
+all 47 public commands, negations, aliases, compound relations, small styles,
 shared TEXMF installation and compatibility limits. A standalone test document
 is `examples/minimal.tex`.
+
+Use `\markovbgd` for the Markov background relation, consistent with the ADMG
+paper. The former name `\markovblanket` remains a compatibility alias with
+identical rendering and relation spacing.
 
 Dependencies: `amsmath`, `amssymb`, TikZ/PGF, `adjustbox`, `centernot`. Standard
 TeX Live/MiKTeX distributions provide these. No shell escape or paid service is
@@ -66,9 +70,11 @@ python3 tools/workflow.py export-mathjax
 python3 tools/package-draft.py
 ```
 
-`check` exercises all 46 commands in all four styles at 10 pt with three engines,
+`check` exercises all 47 commands in all four styles at 10 pt with three engines,
 and checks common primitive box dimensions at 10, 11 and 12 pt. Straight relations
-are checked against their legacy drawing. `check-outlines` verifies that 28
+are checked against their legacy drawing; both Markov background names are also
+checked against the original compound relation at every size and style.
+`check-outlines` verifies that 28
 production SVGs exactly reproduce the selected B2 specimen across four styles.
 The archived investigation also independently checked reference-size ink extents.
 These checks supplement reading-size and print inspection; they are not an
