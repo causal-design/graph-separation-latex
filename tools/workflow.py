@@ -78,6 +78,7 @@ def check(engines=None):
         executable(engine)  # Missing engines are explicit failures, not silent skips.
         body = [r"\documentclass{article}\usepackage{graph-separation}",
                 r"\input{tests/legacy-primitives.tex}",
+                r"\newcommand{\referenceMarkovbgd}{\mathrel{\halfstraigfull \ast \fullstraigfull}}",
                 r"\newsavebox{\probe}", r"\begin{document}"]
         expected = {}
         primitives = {
@@ -100,6 +101,15 @@ def check(engines=None):
                 for name in public_macros():
                     if size == 10:
                         body.append(r"\sbox{\probe}{$" + tex_style + " A\\" + name + " B$}")
+                # The preferred name and compatibility alias preserve the
+                # original compound relation, including its surrounding spacing.
+                for name in ["markovbgd", "markovblanket", "referenceMarkovbgd"]:
+                    key = f"{size}-{style}-{name}"
+                    body.append(r"\sbox{\probe}{$" + tex_style + " A\\" + name + " B$}%")
+                    body.append(r"\typeout{GS " + key
+                                + r": \the\wd\probe,\the\ht\probe,\the\dp\probe}")
+                    if name != "referenceMarkovbgd":
+                        expected[key] = f"{size}-{style}-referenceMarkovbgd"
         # Preserve the published 0.5pt straight primitive, including its box.
         for name, tips in [("nostraigno", "-"),
                            ("nostraigfull", "-{Classical TikZ Rightarrow[length=1mm]}"),
